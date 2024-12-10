@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Page</title>
+    <title>kprompt - in</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+
     <style>
         body {
             margin: 0;
@@ -14,7 +17,7 @@
             align-items: center;
             height: 100vh;
             background: #2c2c2c;
-            font-family: Arial, sans-serif;
+            font-family: 'Bebas Neue', sans-serif;
             color: #dcdcdc;
             overflow: hidden;
         }
@@ -67,6 +70,13 @@
         button:active {
             transform: translateY(2px);
             box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Abstand zwischen den Buttons */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Abstand zwischen den Buttons */
         }
 
         /* Toast-Nachricht-Stil */
@@ -136,12 +146,16 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">Nachricht eingeben</div>
+        <div class="header">Prompt eingeben</div>
         <input type="text" id="messageInput" placeholder="Schreib hier deine Nachricht...">
-        <button onclick="postMessage()">Nachricht senden</button>
-        <!-- Button für die Weiterleitung zur Output-Seite -->
-        <button onclick="window.location.href='/output'">Zur Output-Seite</button>
+        
+        <div class="button-container">
+            <!-- Button für das Senden der Nachricht -->
+            <button onclick="postMessage()">Prompt senden</button>
+            
+            <!-- Button für die Weiterleitung zur Output-Seite (öffnet in neuem Tab) -->
+            <button onclick="window.open('/output', '_blank')">Zum Prompter</button>
+        </div>
     </div>
 </body>
 </html>
- <!-- 1 -->
