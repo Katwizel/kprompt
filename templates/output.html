@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Output Page</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #2c2c2c;
+            font-family: Arial, sans-serif;
+            color: #dcdcdc;
+            overflow: hidden; /* Entfernt Scrollleisten vom Body */
+        }
+
+        .container {
+            position: relative;
+            text-align: center;
+            background: #3b3b3b;
+            padding: 5%;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+            width: 80%;
+            height: 70%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.05); /* Transparenter Hintergrundtext */
+            font-size: 5rem;
+            font-weight: bold;
+            z-index: 1;
+            pointer-events: none; /* Überschrift ist nicht klickbar */
+        }
+
+        .messages {
+            position: relative;
+            flex: 1;
+            overflow-y: auto; /* Ermöglicht Scrollen bei langen Nachrichten */
+            z-index: 2; /* Nachrichten erscheinen über dem Hintergrund */
+        }
+
+        .message-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #444444;
+            color: #dcdcdc;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            word-break: break-word;
+        }
+
+        .message-row span {
+            flex: 1;
+            margin-right: 10px; /* Abstand zum Button */
+        }
+
+        .message-row a {
+            color: #81d4fa;
+            text-decoration: none;
+        }
+
+        .message-row a:hover {
+            text-decoration: underline;
+        }
+
+        .copy-button {
+            background: #81d4fa;
+            color: #2c2c2c;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-button:hover {
+            background: #4fc3f7;
+        }
+
+        .copy-button:active {
+            transform: translateY(2px);
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .copied-message {
+            color: #81d4fa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* Toast-Nachricht-Stil */
+        .toast {
+            visibility: hidden;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 1rem;
+            z-index: 1000;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            transition: visibility 0.5s ease, opacity 0.5s ease;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+    </style>
+    <script>
+        async function fetchMessages() {
+            const response = await fetch('/get_messages');
+            const messages = await response.json();
+
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.innerHTML = ''; // Alte Nachrichten löschen
+
+            messages.forEach((message) => {
+                // Erstelle eine Zeile für jede Nachricht
+                const messageRow = document.createElement('div');
+                messageRow.className = 'message-row';
+
+                // Nachrichtentext erstellen
+                const textElement = document.createElement('span');
+                if (message.startsWith('http://') || message.startsWith('https://')) {
+                    const link = document.createElement('a');
+                    link.href = message;
+                    link.target = '_blank';
+                    link.textContent = message;
+                    textElement.appendChild(link);
+                } else {
+                    textElement.textContent = message;
+                }
+
+                // Kopieren-Button erstellen
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-button';
+                copyButton.textContent = 'Kopieren';
+                copyButton.onclick = () => copyToClipboard(message);
+
+                // Nachrichtentext und Kopieren-Button in die Zeile einfügen
+                messageRow.appendChild(textElement);
+                messageRow.appendChild(copyButton);
+
+                // Eine kleine Textnachricht für den Copy-Befehl erstellen
+                const copiedMessage = document.createElement('span');
+                copiedMessage.className = 'copied-message';
+                copiedMessage.textContent = 'Kopiert!';
+
+                // Nachrichtenzeile zum Nachrichtencontainer hinzufügen
+                messageRow.appendChild(copiedMessage);
+                messagesContainer.appendChild(messageRow);
+            });
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Toast-Nachricht anzeigen
+                showToast('Nachricht kopiert!');
+            }).catch((error) => {
+                console.error('Fehler beim Kopieren:', error);
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            // Zeige die Toast-Nachricht an
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+
+            // Entferne die Toast-Nachricht nach 3 Sekunden
+            setTimeout(() => {
+                toast.classList.remove('show');
+                document.body.removeChild(toast);
+            }, 3000);
+        }
+
+        // Nachrichten beim Laden der Seite abrufen
+        window.onload = function() {
+            fetchMessages(); // Beim ersten Laden der Seite Nachrichten holen
+
+            // Alle 5 Sekunden nach neuen Nachrichten suchen
+            setInterval(fetchMessages, 5000);
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Gesendete Nachrichten</div>
+        <div class="messages" id="messagesContainer">
+            <!-- Nachrichten werden hier dynamisch eingefügt -->
+        </div>
+    </div>
+</body>
+</html>

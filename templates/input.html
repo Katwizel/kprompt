@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Page</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #2c2c2c;
+            font-family: Arial, sans-serif;
+            color: #dcdcdc;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            text-align: center;
+            background: #3b3b3b;
+            padding: 5%;
+            border-radius: 12px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+            width: 80%;
+            max-width: 800px;
+        }
+
+        .header {
+            color: #dcdcdc;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+            background: #444444;
+            color: #dcdcdc;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            background: #81d4fa;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #4fc3f7;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Toast-Nachricht-Stil */
+        .toast {
+            visibility: hidden;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 1rem;
+            z-index: 1000;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            transition: visibility 0.5s ease, opacity 0.5s ease;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+    </style>
+    <script>
+        async function postMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            if (message) {
+                // Sende die Nachricht über POST an den Server
+                const response = await fetch('/post_message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                if (response.ok) {
+                    messageInput.value = ''; // Eingabefeld leeren
+                    // Zeige die Toast-Nachricht
+                    showToast('Nachricht wurde gesendet!');
+                } else {
+                    showToast('Fehler beim Senden der Nachricht!');
+                }
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            // Zeige die Toast-Nachricht an
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+
+            // Entferne die Toast-Nachricht nach 3 Sekunden
+            setTimeout(() => {
+                toast.classList.remove('show');
+                document.body.removeChild(toast);
+            }, 3000);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Nachricht eingeben</div>
+        <input type="text" id="messageInput" placeholder="Schreib hier deine Nachricht...">
+        <button onclick="postMessage()">Nachricht senden</button>
+    </div>
+</body>
+</html>
